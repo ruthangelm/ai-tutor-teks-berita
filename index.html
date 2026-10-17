@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Tutor Teks Berita</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #2459c4;
+      --dark: #183153;
+      --light: #f2f6ff;
+      --text: #243047;
+      --muted: #64748b;
+      --border: #dce4f0;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f7fc;
+      color: var(--text);
+    }
+
+    header {
+      padding: 30px 20px;
+      color: white;
+      background: linear-gradient(120deg, #183153, #2864dc);
+    }
+
+    .container {
+      width: min(1000px, 94%);
+      margin: auto;
+    }
+
+    .label {
+      display: inline-block;
+      padding: 7px 12px;
+      border: 1px solid #ffffff66;
+      border-radius: 20px;
+      font-size: 12px;
+    }
+
+    header h1 {
+      margin: 16px 0 8px;
+      font-size: clamp(26px, 5vw, 38px);
+    }
+
+    header p {
+      max-width: 650px;
+      line-height: 1.6;
+      color: #e4ecff;
+    }
+
+    main {
+      padding: 24px 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 270px 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel, .chat {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 5px 20px #1831530b;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    h2 {
+      font-size: 17px;
+      margin-top: 0;
+    }
+
+    .topic {
+      display: block;
+      width: 100%;
+      margin: 9px 0;
+      padding: 12px;
+      text-align: left;
+      font-size: 14px;
+      color: var(--text);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .topic:hover {
+      background: var(--light);
+      border-color: var(--primary);
+    }
+
+    .description {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .chat-header {
+      padding: 17px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .status {
+      width: 11px;
+      height: 11px;
+      background: #20b779;
+      border-radius: 50%;
+    }
+
+    .chat-header small {
+      display: block;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    #messages {
+      height: 420px;
+      overflow-y: auto;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+    }
+
+    .message {
+      max-width: 88%;
+      padding: 13px 15px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .bot {
+      background: #edf2f9;
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+
+    .user {
+      background: var(--primary);
+      color: white;
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+
+    .input-area {
+      display: flex;
+      gap: 9px;
+      padding: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    #question {
+      flex: 1;
+      min-width: 0;
+      padding: 13px;
+      font-size: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    #question:focus {
+      border-color: var(--primary);
+    }
+
+    #send {
+      border: none;
+      padding: 0 18px;
+      border-radius: 10px;
+      color: white;
+      background: var(--primary);
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #send:hover {
+      background: #19469e;
+    }
+
+    .note {
+      padding: 0 16px 15px;
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    footer {
+      text-align: center;
+      color: var(--muted);
+      padding: 15px;
+      font-size: 12px;
+    }
+
+    @media (max-width: 700px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      #messages {
+        height: 380px;
+      }
+
+      .message {
+        max-width: 95%;
+      }
+
+      .panel {
+        order: 2;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="container">
+    <span class="label">MEDIA PEMBELAJARAN BAHASA INDONESIA</span>
+    <h1>AI Tutor Teks Berita</h1>
+    <p>
+      Halo, Sobat Belajar! Mari memahami teks berita melalui
+      penjelasan materi, tanya jawab, dan latihan soal interaktif.
+    </p>
+  </div>
+</header>
+
+<main class="container">
+  <div class="layout">
+
+    <aside class="panel">
+      <h2>📚 Materi Pembelajaran</h2>
+
+      <button class="topic"
+        data-question="Apa pengertian teks berita?">
+        Pengertian Teks Berita
+      </button>
+
+      <button class="topic"
+        data-question="Jelaskan unsur 5W+1H beserta contohnya.">
+        Unsur 5W+1H
+      </button>
+
+      <button class="topic"
+        data-question="Jelaskan struktur teks berita.">
+        Struktur Teks Berita
+      </button>
+
+      <button class="topic"
+        data-question="Apa saja kaidah kebahasaan teks berita?">
+        Kaidah Kebahasaan
+      </button>
+
+      <button class="topic"
+        data-question="Berikan latihan soal tentang teks berita.">
+        Latihan Soal
+      </button>
+
+      <hr style="border:0;border-top:1px solid #dce4f0;margin:20px 0">
+
+      <h2>💡 Petunjuk Belajar</h2>
+      <p class="description">
+        Pilih salah satu materi atau ketik pertanyaan pada kolom
+        percakapan. Cobalah menjawab latihan sebelum membaca
+        pembahasannya.
+      </p>
+    </aside>
+
+    <section class="chat">
+      <div class="chat-header">
+        <span class="status"></span>
+        <div>
+          <strong>Tutor Teks Berita</strong>
+          <small>Teman belajar Bahasa Indonesia</small>
+        </div>
+      </div>
+
+      <div id="messages" aria-live="polite">
+        <div class="message bot">Halo! 👋 Selamat datang di AI Tutor Teks Berita.
+
+Aku siap membantu kamu belajar tentang teks berita.
+
+Kamu bisa bertanya:
+• Apa pengertian teks berita?
+• Apa saja unsur 5W+1H?
+• Bagaimana struktur teks berita?
+• Apa kaidah kebahasaannya?
+
+Yuk, mulai belajar! 😊</div>
+      </div>
+
+      <form class="input-area" id="chatForm">
+        <input
+          id="question"
+          type="text"
+          placeholder="Tulis pertanyaanmu di sini..."
+          autocomplete="off"
+          required
+        >
+        <button id="send" type="submit">Kirim</button>
+      </form>
+
+      <div class="note">
+        Versi pembelajaran awal. Jawaban chatbot berasal dari materi
+        yang sudah disiapkan dan belum terhubung dengan AI generatif.
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  AI Tutor Teks Berita · Media Pembelajaran Bahasa Indonesia
+</footer>
+
+<script>
+  const messages = document.getElementById("messages");
+  const form = document.getElementById("chatForm");
+  const input = document.getElementById("question");
+
+  const materi = [
+    {
+      keywords: ["pengertian", "definisi", "apa itu"],
+      answer: `PENGERTIAN TEKS BERITA
+
+Teks berita adalah teks yang menyampaikan informasi tentang
+peristiwa nyata dan aktual kepada masyarakat.
+
+Berita yang baik menyajikan fakta secara jelas, akurat, dan
+dapat diperiksa kebenarannya.
+
+Contoh:
+"Siswa kelas VIII mengikuti kegiatan literasi di sekolah
+pada Senin pagi."
+
+Kalimat tersebut menyampaikan peristiwa, pelaku, tempat,
+dan waktu.`
+    },
+
+    {
+      keywords: [
+        "5w", "1h", "unsur", "siapa", "kapan",
+        "dimana", "di mana", "mengapa", "bagaimana"
+      ],
+      answer: `UNSUR 5W+1H DALAM TEKS BERITA
+
+1. What (apa): peristiwa apa yang terjadi?
+2. Who (siapa): siapa yang terlibat?
+3. When (kapan): kapan peristiwa terjadi?
+4. Where (di mana): di mana peristiwa terjadi?
+5. Why (mengapa): mengapa peristiwa terjadi?
+6. How (bagaimana): bagaimana peristiwa berlangsung?
+
+Contoh:
+"Pada Senin pagi, siswa kelas VIII mengadakan kerja bakti
+di halaman sekolah untuk menjaga kebersihan."
+
+Dari contoh tersebut:
+• Apa: kegiatan kerja bakti.
+• Siapa: siswa kelas VIII.
+• Kapan: Senin pagi.
+• Di mana: halaman sekolah.
+• Mengapa: untuk menjaga kebersihan.
+• Bagaimana: informasi cara pelaksanaan belum dijelaskan
+secara terperinci.
+
+Ingat, jangan menebak informasi yang tidak terdapat
+dalam teks.`
+    },
+
+    {
+      keywords: ["struktur", "teras", "kepala berita", "tubuh berita"],
+      answer: `STRUKTUR TEKS BERITA
+
+Secara umum, struktur teks berita dapat meliputi:
+
+1. Judul berita
+   Menggambarkan pokok peristiwa yang diberitakan.
+
+2. Teras berita
+   Bagian pembuka yang menyampaikan informasi terpenting.
+
+3. Tubuh berita
+   Bagian yang menguraikan peristiwa secara lebih lengkap,
+   misalnya kronologi, data, dan keterangan narasumber.
+
+4. Bagian penutup atau informasi tambahan
+   Memuat rincian pelengkap jika diperlukan.
+
+Istilah dan pembagian struktur dapat berbeda menurut
+buku pelajaran yang digunakan. Ikuti penjelasan guru
+dan buku yang menjadi acuan pembelajaranmu.`
+    },
+
+    {
+      keywords: ["kaidah", "kebahasaan", "bahasa berita"],
+      answer: `KAIDAH KEBAHASAAN TEKS BERITA
+
+Beberapa kaidah kebahasaan yang umum ditemukan ialah:
+
+1. Bahasa baku dan jelas.
+2. Kata kerja yang menunjukkan tindakan atau peristiwa.
+3. Keterangan waktu dan tempat.
+4. Konjungsi temporal, seperti kemudian dan setelah itu.
+5. Kutipan atau pernyataan narasumber jika relevan.
+6. Istilah yang sesuai dengan topik berita.
+
+Penggunaan bahasa yang jelas membantu pembaca memahami
+informasi tanpa menimbulkan kesalahpahaman.`
+    },
+
+    {
+      keywords: ["latihan", "soal", "kuis"],
+      answer: `LATIHAN SOAL TEKS BERITA
+
+Bacalah kutipan berikut!
+
+"Pada Selasa pagi, petugas perpustakaan SMP Harapan
+membuka layanan membaca keliling di halaman sekolah.
+Kegiatan tersebut dilakukan untuk meningkatkan minat
+baca siswa."
+
+Pertanyaan:
+1. Apa peristiwa yang terjadi?
+2. Siapa yang terlibat?
+3. Kapan kegiatan dilakukan?
+4. Di mana kegiatan berlangsung?
+5. Mengapa kegiatan tersebut dilaksanakan?
+
+Coba jawab dengan bahasamu sendiri. Kirim jawabanmu
+di kolom percakapan agar tutor memberikan umpan balik.`
+    },
+
+    {
+      keywords: ["fakta", "opini"],
+      answer: `PERBEDAAN FAKTA DAN OPINI
+
+Fakta adalah informasi yang dapat diperiksa kebenarannya.
+
+Contoh:
+"Kegiatan dimulai pukul 08.00."
+
+Opini adalah pendapat atau penilaian seseorang.
+
+Contoh:
+"Kegiatan itu sangat menarik."
+
+Saat membaca berita, perhatikan apakah suatu pernyataan
+berupa fakta, pendapat narasumber, atau komentar.`
+    },
+
+    {
+      keywords: ["judul"],
+      answer: `CIRI JUDUL BERITA YANG BAIK
+
+Judul berita sebaiknya:
+1. Ringkas dan jelas.
+2. Sesuai dengan isi berita.
+3. Mewakili peristiwa utama.
+4. Tidak menyesatkan pembaca.
+5. Menghindari sensasi yang tidak didukung fakta.`
+    }
+  ];
+
+  function tambahPesan(teks, pengirim) {
+    const elemen = document.createElement("div");
+    elemen.className = "message " + pengirim;
+
+    // textContent mencegah teks pengguna diproses sebagai HTML.
+    elemen.textContent = teks;
+
+    messages.appendChild(elemen);
+    messages.scrollTop = messages.scrollHeight;
+  }
+
+  function cariJawaban(pertanyaan) {
+    const q = pertanyaan.toLocaleLowerCase("id-ID");
+
+    for (const item of materi) {
+      if (item.keywords.some(kata => q.includes(kata))) {
+        return item.answer;
+      }
+    }
+
+    return `Terima kasih atas pertanyaanmu! 😊
+
+Untuk saat ini, aku memiliki materi tentang:
+• Pengertian teks berita
+• Unsur 5W+1H
+• Struktur teks berita
+• Kaidah kebahasaan
+• Fakta dan opini
+• Judul berita
+• Latihan soal
+
+Coba tanyakan salah satu topik tersebut dengan lebih
+spesifik, ya.
+
+Catatan: Aku masih menggunakan kumpulan materi dasar,
+jadi belum bisa menjawab semua pertanyaan secara bebas.`;
+  }
+
+  function kirimPertanyaan(pertanyaan) {
+    const teks = pertanyaan.trim();
+
+    if (!teks) return;
+
+    tambahPesan(teks, "user");
+    tambahPesan(cariJawaban(teks), "bot");
+  }
+
+  form.addEventListener("submit", function(event) {
+    event.preventDefault();
+
+    kirimPertanyaan(input.value);
+    input.value = "";
+    input.focus();
+  });
+
+  document.querySelectorAll(".topic").forEach(function(tombol) {
+    tombol.addEventListener("click", function() {
+      kirimPertanyaan(tombol.dataset.question);
+    });
+  });
+</script>
+
+</body>
+</html>
